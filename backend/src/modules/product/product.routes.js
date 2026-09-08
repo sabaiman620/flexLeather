@@ -9,6 +9,7 @@ import {
   getAllProducts,
   getAllProductsAdmin,
   getProductsByCategoryId,
+  getTrendingProducts,
   createProduct,
   updateProduct,
   deleteProduct,
@@ -27,6 +28,7 @@ productRouter.get("/category/:categoryId", cacheMiddleware(300), getProductsByCa
 // Public product detail by slug (frontend URLs use slug; IDs stay for DB relations)
 productRouter.get("/get/:slug", cacheMiddleware(600), getProductDetail); // 10 min cache
 productRouter.get("/search", cacheMiddleware(180), searchProducts); // 3 min cache
+productRouter.get("/trending", cacheMiddleware(300), getTrendingProducts);
 
 // Admin routes
 productRouter.post(

@@ -18,6 +18,7 @@ const productSchema = new mongoose.Schema(
 
     images: [String],
     isActive: { type: Boolean, default: true },
+    isTrending: { type: Boolean, default: false },
     madeToOrder: { type: Boolean, default: false }
   },
   { timestamps: true }

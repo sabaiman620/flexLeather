@@ -220,6 +220,7 @@ export type BackendProduct = {
   images?: string[];
   isActive?: boolean;
   madeToOrder?: boolean;
+  isTrending?: boolean;
 };
 
 // Server-side fetch helper for Next.js Server Components

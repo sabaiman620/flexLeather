@@ -9,6 +9,8 @@ import AnnouncementBar from '@/components/AnnouncementBar'
 import ProductSlider from '@/components/ProductSlider'
 import FeaturedProducts from '@/components/featured-products'
 import LeatherShowcase from '@/components/LeatherShowcase'
+import AboutAndValues from '@/components/AboutAndValues'
+import TrendingProducts from '@/components/TrendingProducts'
 import Footer from '@/components/footer'
 
 export default function Home() {
@@ -19,6 +21,8 @@ export default function Home() {
       <CategoriesNavBar />
       <Hero />
       <FeaturedProducts />
+      <AboutAndValues />
+      <TrendingProducts />
       {/* <ProductSlider /> */}
       <LeatherShowcase />
       <Footer />

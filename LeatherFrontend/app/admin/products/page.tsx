@@ -21,6 +21,7 @@ type FormState = {
   category?: string
   soldOut?: boolean
   articleNumber?: string
+  isTrending?: boolean
 }
 
 export default function AdminProductsPage() {
@@ -48,6 +49,7 @@ export default function AdminProductsPage() {
     category: '',
     soldOut: false
     ,articleNumber: ''
+    ,isTrending: false
   })
   
   const [images, setImages] = useState<File[] | null>(null)
@@ -127,6 +129,7 @@ export default function AdminProductsPage() {
       price: p.price,
       description: p.description || '',
       articleNumber: (p as any).articleNumber || '',
+      isTrending: Boolean((p as any).isTrending),
       discount: p.discount,
       stock: p.stock,
       sizes: Array.isArray(p.sizes) ? p.sizes.join(',') : '',
@@ -168,6 +171,7 @@ export default function AdminProductsPage() {
       if (form.description) fd.append('description', form.description)
       if (form.category) fd.append('category', form.category)
       if (form.isActive !== undefined) fd.append('isActive', String(form.isActive))
+      if (form.isTrending !== undefined) fd.append('isTrending', String(Boolean(form.isTrending)))
       fd.append('madeToOrder', String(Boolean(form.madeToOrder)))
       if (form.sizes !== undefined) fd.append('sizes', sanitizeArrayString(form.sizes))
       if (form.colors !== undefined) fd.append('colors', sanitizeArrayString(form.colors))
@@ -253,6 +257,7 @@ export default function AdminProductsPage() {
                 <th className="p-4 font-medium">Price (PKR)</th>
                 <th className="p-4 font-medium">Stock</th>
                 <th className="p-4 font-medium">Status</th>
+                <th className="p-4 font-medium">Trending</th>
                 <th className="p-4 font-medium text-right">Actions</th>
               </tr>
             </thead>
@@ -284,6 +289,43 @@ export default function AdminProductsPage() {
                       )}
                     </div>
                   </td>
+                  <td className="p-4">
+                    <div className="flex flex-col gap-1">
+                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${p.isActive !== false ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                        {p.isActive !== false ? 'Active' : 'Inactive'}
+                      </span>
+                      {(!p.stock || p.stock <= 0) && (
+                        <span className="text-xs px-2 py-1 rounded-full font-medium bg-red-100 text-red-700">SOLD OUT</span>
+                      )}
+                      {p.madeToOrder && (
+                        <span className="text-xs px-2 py-1 rounded-full font-medium bg-amber-100 text-amber-800">MADE TO ORDER</span>
+                      )}
+                    </div>
+                  </td>
+
+                  <td className="p-4">
+                    <div className="flex items-center justify-center">
+                      <input
+                        type="checkbox"
+                        checked={Boolean((p as any).isTrending)}
+                        onChange={async (e) => {
+                          const token = localStorage.getItem('accessToken')
+                          try {
+                            await fetch(`${API_BASE_URL}/api/v1/products/update/${p._id}`, {
+                              method: 'PUT',
+                              credentials: 'include',
+                              headers: { ...(token ? { Authorization: `Bearer ${token}` } : {} ) },
+                              body: JSON.stringify({ isTrending: e.target.checked })
+                            })
+                            loadAllProducts()
+                          } catch (err) {
+                            alert('Failed to update trending status')
+                          }
+                        }}
+                      />
+                    </div>
+                  </td>
+
                   <td className="p-4 text-right">
                     <div className="flex justify-end gap-2">
                       <button onClick={() => openEditModal(p)} className="p-2 text-blue-600 hover:bg-blue-50 rounded" title="Edit">
@@ -298,7 +340,7 @@ export default function AdminProductsPage() {
               ))}
               {products.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="p-8 text-center text-muted-foreground">No products found.</td>
+                  <td colSpan={9} className="p-8 text-center text-muted-foreground">No products found.</td>
                 </tr>
               )}
             </tbody>
@@ -394,6 +436,14 @@ export default function AdminProductsPage() {
                     onChange={e => setForm({ ...form, madeToOrder: e.target.checked })}
                   />
                   <span className="text-xs text-gray-500">Made to Order</span>
+                </label>
+                <label className="inline-flex items-center gap-2 mt-2">
+                  <input
+                    type="checkbox"
+                    checked={!!form.isTrending}
+                    onChange={e => setForm({ ...form, isTrending: e.target.checked })}
+                  />
+                  <span className="text-xs text-gray-500">Mark as Trending</span>
                 </label>
               </div>
               

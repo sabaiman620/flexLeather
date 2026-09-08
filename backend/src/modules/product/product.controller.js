@@ -156,6 +156,31 @@ const getProductsByCategoryId = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, productsWithUrls, "Products fetched by category"));
 });
 
+// Get trending products
+const getTrendingProducts = asyncHandler(async (req, res) => {
+  const limit = parseInt(req.query.limit) || 12;
+  const products = await Product.find({ isActive: true, isTrending: true })
+    .limit(limit)
+    .sort({ updatedAt: -1 })
+    .populate({
+      path: "category",
+      select: "name slug parentCategory",
+      populate: { path: "parentCategory", select: "name slug" }
+    });
+
+  const productsWithUrls = await Promise.all(
+    products.map(async (p) => {
+      const keys = Array.isArray(p.images) ? p.images : [];
+      const imageUrls = await Promise.all(
+        keys.map((key) => S3UploadHelper.getSignedUrl(key))
+      );
+      return { ...p._doc, imageUrls };
+    })
+  );
+
+  return res.status(200).json(new ApiResponse(200, productsWithUrls, "Trending products fetched"));
+});
+
 
 // Create product
 const createProduct = asyncHandler(async (req, res) => {
@@ -163,6 +188,7 @@ const createProduct = asyncHandler(async (req, res) => {
     name,
     description,
     articleNumber,
+    isTrending,
     price,
     discount,
     stock,
@@ -239,6 +265,7 @@ const createProduct = asyncHandler(async (req, res) => {
       name,
       description,
       articleNumber,
+      isTrending: Boolean(isTrending),
       price,
       discount,
       stock,
@@ -285,6 +312,7 @@ const updateProduct = asyncHandler(async (req, res) => {
     name,
     description,
     articleNumber,
+    isTrending,
     price,
     discount,
     stock,
@@ -307,6 +335,7 @@ const updateProduct = asyncHandler(async (req, res) => {
   if (name) product.name = name;
   if (description) product.description = description;
   if (articleNumber !== undefined) product.articleNumber = articleNumber;
+  if (isTrending !== undefined) product.isTrending = typeof isTrending === 'string' ? isTrending === 'true' : Boolean(isTrending);
   if (price !== undefined) product.price = toNumber(price);
   if (discount !== undefined) product.discount = toNumber(discount);
   if (stock !== undefined) product.stock = toNumber(stock);
@@ -484,6 +513,7 @@ export {
   getAllProducts,
   getAllProductsAdmin,
   getProductsByCategoryId,
+  getTrendingProducts,
   createProduct,
   updateProduct,
   deleteProduct,
