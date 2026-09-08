@@ -162,6 +162,7 @@ const createProduct = asyncHandler(async (req, res) => {
   let {
     name,
     description,
+    articleNumber,
     price,
     discount,
     stock,
@@ -237,6 +238,7 @@ const createProduct = asyncHandler(async (req, res) => {
     product = await Product.create({
       name,
       description,
+      articleNumber,
       price,
       discount,
       stock,
@@ -282,6 +284,7 @@ const updateProduct = asyncHandler(async (req, res) => {
   let {
     name,
     description,
+    articleNumber,
     price,
     discount,
     stock,
@@ -303,6 +306,7 @@ const updateProduct = asyncHandler(async (req, res) => {
 
   if (name) product.name = name;
   if (description) product.description = description;
+  if (articleNumber !== undefined) product.articleNumber = articleNumber;
   if (price !== undefined) product.price = toNumber(price);
   if (discount !== undefined) product.discount = toNumber(discount);
   if (stock !== undefined) product.stock = toNumber(stock);

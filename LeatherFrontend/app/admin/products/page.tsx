@@ -20,6 +20,7 @@ type FormState = {
   madeToOrder?: boolean
   category?: string
   soldOut?: boolean
+  articleNumber?: string
 }
 
 export default function AdminProductsPage() {
@@ -46,6 +47,7 @@ export default function AdminProductsPage() {
     madeToOrder: false,
     category: '',
     soldOut: false
+    ,articleNumber: ''
   })
   
   const [images, setImages] = useState<File[] | null>(null)
@@ -103,7 +105,8 @@ export default function AdminProductsPage() {
       isActive: true,
       madeToOrder: false,
       category: '',
-      soldOut: false
+      soldOut: false,
+      articleNumber: ''
     })
     setImages(null)
     setEditingId(null)
@@ -123,6 +126,7 @@ export default function AdminProductsPage() {
       name: p.name || '',
       price: p.price,
       description: p.description || '',
+      articleNumber: (p as any).articleNumber || '',
       discount: p.discount,
       stock: p.stock,
       sizes: Array.isArray(p.sizes) ? p.sizes.join(',') : '',
@@ -168,6 +172,7 @@ export default function AdminProductsPage() {
       if (form.sizes !== undefined) fd.append('sizes', sanitizeArrayString(form.sizes))
       if (form.colors !== undefined) fd.append('colors', sanitizeArrayString(form.colors))
       if (form.specs !== undefined) fd.append('specs', sanitizeArrayString(form.specs))
+      if (form.articleNumber !== undefined && form.articleNumber !== null) fd.append('articleNumber', String(form.articleNumber))
       
       images?.forEach(f => fd.append('images', f))
 
@@ -243,6 +248,7 @@ export default function AdminProductsPage() {
               <tr>
                 <th className="p-4 font-medium">Image</th>
                 <th className="p-4 font-medium">Name</th>
+                <th className="p-4 font-medium">Article No.</th>
                 <th className="p-4 font-medium">Category</th>
                 <th className="p-4 font-medium">Price (PKR)</th>
                 <th className="p-4 font-medium">Stock</th>
@@ -259,6 +265,7 @@ export default function AdminProductsPage() {
                       </div>
                   </td>
                   <td className="p-4 font-medium">{p.name}</td>
+                    <td className="p-4">{(p as any).articleNumber || '-'}</td>
                   <td className="p-4 text-muted-foreground">
                     {typeof p.category === 'object' ? p.category?.name : 'Unknown'}
                   </td>
@@ -291,7 +298,7 @@ export default function AdminProductsPage() {
               ))}
               {products.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="p-8 text-center text-muted-foreground">No products found.</td>
+                  <td colSpan={8} className="p-8 text-center text-muted-foreground">No products found.</td>
                 </tr>
               )}
             </tbody>
@@ -338,6 +345,10 @@ export default function AdminProductsPage() {
                     )
                   })}
                 </select>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-medium uppercase text-gray-500">Article Number</label>
+                <input className="w-full border p-2 rounded focus:border-black outline-none" placeholder="Article Number" value={form.articleNumber ?? ''} onChange={e => setForm({ ...form, articleNumber: e.target.value })} />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-medium uppercase text-gray-500">Price (PKR)</label>

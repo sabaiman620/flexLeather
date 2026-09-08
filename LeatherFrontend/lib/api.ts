@@ -214,6 +214,7 @@ export type BackendProduct = {
   sizes?: string[];
   colors?: string[];
   specs?: string[];
+  articleNumber?: string;
   category?: { _id: string; name?: string; type?: string; slug?: string; parentCategory?: { _id: string; name?: string; slug?: string } | string | null } | string;
   imageUrls?: string[];
   images?: string[];
