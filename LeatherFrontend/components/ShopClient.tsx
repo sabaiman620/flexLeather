@@ -108,6 +108,8 @@ const DEFAULT_CATEGORY_GROUPS: CategoryGroup[] = [
   }
 ]
 
+// Preferred display order for main categories
+const PREFERRED_CATEGORY_ORDER = ['men', 'women', 'office', 'kids', 'gift-ideas']
 export default function ShopClient({ initialProducts, initialPagination }: ShopClientProps) {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -177,7 +179,19 @@ export default function ShopClient({ initialProducts, initialPagination }: ShopC
               }
             })
 
-            setCategoryGroups(formatted)
+            // Reorder formatted categories to match preferred order, keeping any others afterwards
+            const ordered: CategoryGroup[] = []
+            const remaining = [...formatted]
+            PREFERRED_CATEGORY_ORDER.forEach(slug => {
+              const idx = remaining.findIndex(r => r.slug && r.slug.toLowerCase() === slug.toLowerCase())
+              if (idx !== -1) {
+                ordered.push(remaining.splice(idx, 1)[0])
+              }
+            })
+            // Append any categories not in the preferred list
+            ordered.push(...remaining)
+
+            setCategoryGroups(ordered)
           }
         }
       })
@@ -401,6 +415,41 @@ export default function ShopClient({ initialProducts, initialPagination }: ShopC
     })
   }, [products, priceRange, queryParam])
 
+  // Order filtered products according to preferred category sequence
+  const orderedFilteredProducts = useMemo(() => {
+    if (!filteredProducts || filteredProducts.length === 0) return filteredProducts
+
+    const groupMap: Record<string, UIProduct[]> = {}
+    const others: UIProduct[] = []
+
+    filteredProducts.forEach(p => {
+      const key = (p.parentCategorySlug || p.categorySlug || '').toLowerCase()
+      if (key) {
+        if (!groupMap[key]) groupMap[key] = []
+        groupMap[key].push(p)
+      } else {
+        others.push(p)
+      }
+    })
+
+    const ordered: UIProduct[] = []
+    PREFERRED_CATEGORY_ORDER.forEach(slug => {
+      const arr = groupMap[slug]
+      if (arr && arr.length) ordered.push(...arr)
+    })
+
+    // Append products whose category wasn't in preferred list
+    // Also append products that had no category key
+    Object.keys(groupMap).forEach(k => {
+      if (!PREFERRED_CATEGORY_ORDER.includes(k)) {
+        ordered.push(...groupMap[k])
+      }
+    })
+    ordered.push(...others)
+
+    return ordered
+  }, [filteredProducts])
+
   const pageTitle = useMemo(() => {
     if (categoryParam && subcategoryParam) {
       return `${categoryParam.replace(/-/g, ' ')} — ${subcategoryParam.replace(/-/g, ' ')}`
@@ -559,11 +608,11 @@ export default function ShopClient({ initialProducts, initialPagination }: ShopC
             ) : (
             <>
             <p className="mb-6 text-sm opacity-60">
-              Showing {filteredProducts.length} of {pagination.totalProducts} product{pagination.totalProducts !== 1 ? 's' : ''}
+              Showing {orderedFilteredProducts.length} of {pagination.totalProducts} product{pagination.totalProducts !== 1 ? 's' : ''}
             </p>
 
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8">
-              {filteredProducts.map((p, idx) => (
+              {orderedFilteredProducts.map((p, idx) => (
                 <Link
                   key={p.id}
                   href={`/products/${p.slug || p.id}`}

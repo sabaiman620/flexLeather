@@ -41,17 +41,29 @@ export default function FeaturedProducts({ category, currentProductId, currentPr
         const res = await apiFetch('/api/v1/products/getAll?page=1&limit=8')
         // Handle new response format with pagination wrapper
         const list: BackendProduct[] = res?.data?.products || res?.data || []
-        const mapped: UIProduct[] = list.map(p => ({
-          id: p._id,
-          slug: p.slug || undefined,
-          name: p.name,
-          price: p.price,
-          discount: p.discount,
-          image: (p.imageUrls && p.imageUrls[0]) || '/placeholder.jpg',
-          stock: typeof p.stock === 'number' ? p.stock : 0,
-          category: (typeof p.category === 'object' && p.category?.name) || undefined,
-          madeToOrder: Boolean(p.madeToOrder),
-        }))
+        const mapped: UIProduct[] = list.map(p => {
+          const catObj = typeof p.category === 'object' ? p.category : null
+          const parentObj = catObj && typeof catObj.parentCategory === 'object' ? catObj.parentCategory : null
+          const categorySlug = catObj?.slug || (catObj?.name ? catObj.name.toLowerCase().replace(/\s+/g, '-') : undefined)
+          const parentCategorySlug = parentObj?.slug || (parentObj?.name ? parentObj.name.toLowerCase().replace(/\s+/g, '-') : undefined)
+
+          return {
+            id: p._id,
+            slug: p.slug || undefined,
+            name: p.name,
+            price: p.price,
+            discount: p.discount,
+            image: (p.imageUrls && p.imageUrls[0]) || '/placeholder.jpg',
+            stock: typeof p.stock === 'number' ? p.stock : 0,
+            category: (typeof p.category === 'object' && p.category?.name) || undefined,
+            madeToOrder: Boolean(p.madeToOrder),
+            // attach slugs for ordering
+            // @ts-ignore - add dynamic keys used only here
+            categorySlug,
+            // @ts-ignore
+            parentCategorySlug,
+          }
+        })
 
         const others = mapped.filter(p => p.id !== currentProductId)
 
@@ -69,7 +81,32 @@ export default function FeaturedProducts({ category, currentProductId, currentPr
         const filtered = category
           ? others.filter(p => p.category === category)
           : others
-        setProducts(filtered.slice(0, 8))
+
+        // Order featured products using the preferred category sequence
+        const PREFERRED = ['men', 'women', 'office', 'kids', 'gift-ideas']
+        const grouped: Record<string, UIProduct[]> = {}
+        const rest: UIProduct[] = []
+        filtered.forEach(p => {
+          // @ts-ignore
+          const key = (p.parentCategorySlug || p.categorySlug || '').toLowerCase()
+          if (key) {
+            if (!grouped[key]) grouped[key] = []
+            grouped[key].push(p)
+          } else {
+            rest.push(p)
+          }
+        })
+
+        const ordered: UIProduct[] = []
+        PREFERRED.forEach(slug => {
+          if (grouped[slug] && grouped[slug].length) ordered.push(...grouped[slug])
+        })
+        Object.keys(grouped).forEach(k => {
+          if (!PREFERRED.includes(k)) ordered.push(...grouped[k])
+        })
+        ordered.push(...rest)
+
+        setProducts(ordered.slice(0, 8))
       } catch {}
     })()
   }, [isMounted, category, currentProductId, currentProductName])

@@ -207,6 +207,13 @@
 /* Small utility to dim text elegantly on dark backgrounds */
 .muted-on-dark { opacity: 0.82; }
 
+/* Hide native scrollbars for clean horizontal carousels */
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.no-scrollbar::-webkit-scrollbar { display: none; } /* Chrome, Safari, Opera */
+
 /* Header and footer leather background with dark overlay for readable text */
 .bg-header-leather {
   background-image: linear-gradient(rgba(62,39,35,0.86), rgba(62,39,35,0.86)), url('/LEATHER.jpg');
