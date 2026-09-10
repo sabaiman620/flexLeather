@@ -17,7 +17,8 @@ export default function AdminCategoriesPage() {
     name: '',
     parentCategory: '',
     description: '',
-    isActive: true
+    isActive: true,
+    sortOrder: 1000
   })
 
   const loadCategories = async () => {
@@ -51,7 +52,8 @@ export default function AdminCategoriesPage() {
       name: '',
       parentCategory: parentId || '',
       description: '',
-      isActive: true
+      isActive: true,
+      sortOrder: 1000
     })
     setError(null)
     setSuccess(null)
@@ -65,7 +67,8 @@ export default function AdminCategoriesPage() {
       name: cat.name,
       parentCategory: pId || '',
       description: cat.description || '',
-      isActive: cat.isActive !== false
+      isActive: cat.isActive !== false,
+      sortOrder: typeof cat.sortOrder === 'number' ? cat.sortOrder : (cat.sortOrder ? Number(cat.sortOrder) : 1000)
     })
     setError(null)
     setSuccess(null)
@@ -94,11 +97,12 @@ export default function AdminCategoriesPage() {
           ...(token ? { Authorization: `Bearer ${token}` } : {})
         },
         body: JSON.stringify({
-          name: formData.name.trim(),
-          parentCategory: formData.parentCategory || null,
-          description: formData.description,
-          isActive: formData.isActive
-        })
+            name: formData.name.trim(),
+            parentCategory: formData.parentCategory || null,
+            description: formData.description,
+            isActive: formData.isActive,
+            sortOrder: typeof formData.sortOrder === 'number' ? formData.sortOrder : Number(formData.sortOrder || 1000)
+          })
       })
 
       const json = await res.json()
@@ -410,6 +414,19 @@ export default function AdminCategoriesPage() {
                       </option>
                     ))}
                 </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold uppercase text-gray-600 mb-1">
+                  Sort Order (Lower numbers appear first)
+                </label>
+                <input
+                  type="number"
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-black outline-none"
+                  value={formData.sortOrder}
+                  onChange={e => setFormData({ ...formData, sortOrder: Number(e.target.value) })}
+                />
+                <p className="text-xs text-muted-foreground mt-1">Leave as default (1000) to place after ordered categories.</p>
               </div>
 
               <div>

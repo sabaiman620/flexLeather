@@ -86,24 +86,68 @@ const getAllProducts = asyncHandler(async (req, res) => {
 
   // Get total count for pagination metadata
   const totalProducts = await Product.countDocuments(filter);
-  
-  const products = await Product.find(filter)
-    .populate({
-      path: "category",
-      select: "name slug parentCategory",
-      populate: { path: "parentCategory", select: "name slug" }
-    })
-    .skip(skip)
-    .limit(limit)
-    .sort({ createdAt: -1 }); // Newest first
 
+  // Aggregation: lookup category and parentCategory, determine parent sortOrder, sort by that then createdAt, apply pagination
+  const pipeline = [
+    { $match: filter },
+    // lookup category
+    {
+      $lookup: {
+        from: 'categories',
+        localField: 'category',
+        foreignField: '_id',
+        as: 'category'
+      }
+    },
+    { $unwind: { path: '$category', preserveNullAndEmptyArrays: true } },
+    // lookup parentCategory document (if exists)
+    {
+      $lookup: {
+        from: 'categories',
+        localField: 'category.parentCategory',
+        foreignField: '_id',
+        as: 'parentCategory'
+      }
+    },
+    { $unwind: { path: '$parentCategory', preserveNullAndEmptyArrays: true } },
+    // compute the effective sortOrder: prefer parentCategory.sortOrder, otherwise category.sortOrder, otherwise a large default (1000)
+    {
+      $addFields: {
+        categorySortOrder: { $ifNull: [ '$parentCategory.sortOrder', { $ifNull: ['$category.sortOrder', 1000] } ] }
+      }
+    },
+    // sort by categorySortOrder asc, then newest products first
+    { $sort: { categorySortOrder: 1, createdAt: -1 } },
+    { $skip: skip },
+    { $limit: limit }
+  ];
+
+  // Run aggregation and store result in `products` so downstream code can use it
+  const products = await Product.aggregate(pipeline);
+
+  // (debug logging removed)
+
+  // products are plain objects (not mongoose docs); ensure imageUrls are computed and category fields match previous populate shape
   const productsWithUrls = await Promise.all(
     products.map(async (p) => {
       const keys = Array.isArray(p.images) ? p.images : [];
-      const imageUrls = await Promise.all(
-        keys.map((key) => S3UploadHelper.getSignedUrl(key))
-      );
-      return { ...p._doc, imageUrls };
+      const imageUrls = await Promise.all(keys.map((key) => S3UploadHelper.getSignedUrl(key)));
+
+      // Ensure category and parentCategory fields are simple objects with expected fields
+      const category = p.category || null;
+      const parentCategory = p.parentCategory || (category && category.parentCategory ? category.parentCategory : null);
+
+      // Reconstruct a response object similar to previous populated doc
+      return {
+        ...p,
+        category: category ? {
+          _id: category._id,
+          name: category.name,
+          slug: category.slug,
+          parentCategory: parentCategory ? { _id: parentCategory._id, name: parentCategory.name, slug: parentCategory.slug } : null
+        } : null,
+        imageUrls
+      };
     })
   );
 

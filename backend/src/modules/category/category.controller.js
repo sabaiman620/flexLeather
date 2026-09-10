@@ -8,16 +8,16 @@ import { ApiResponse } from "../../core/utils/api-response.js";
 const getAllCategories = asyncHandler(async (req, res) => {
   const includeInactive = req.query.includeInactive === "true";
   const query = includeInactive ? {} : { isActive: true };
-
+  // Default list ordering uses sortOrder (ascending) then name for consistent display
   const categories = await Category.find(query)
-    .populate("parentCategory", "name slug")
-    .sort({ name: 1 });
+    .populate("parentCategory", "name slug sortOrder")
+    .sort({ sortOrder: 1, name: 1 });
   return res.status(200).json(new ApiResponse(200, categories, "Categories fetched"));
 });
 
 // Create category (admin)
 const createCategory = asyncHandler(async (req, res) => {
-  const { name, description, parentCategory, isActive } = req.body;
+  const { name, description, parentCategory, isActive, sortOrder } = req.body;
 
   if (!name) throw new ApiError(400, "Category name is required");
 
@@ -58,7 +58,8 @@ const createCategory = asyncHandler(async (req, res) => {
     slug,
     parentCategory: parentId,
     description: description || `${formattedName} category`,
-    isActive: isActive !== undefined ? isActive : true
+    isActive: isActive !== undefined ? isActive : true,
+    sortOrder: typeof sortOrder === 'number' ? sortOrder : undefined
   });
 
   const populated = await Category.findById(category._id).populate("parentCategory", "name slug");
@@ -98,6 +99,11 @@ const updateCategory = asyncHandler(async (req, res) => {
 
   if (description !== undefined) category.description = description;
   if (isActive !== undefined) category.isActive = isActive;
+  // allow admin to set/change sort order (numeric)
+  if (req.body.sortOrder !== undefined) {
+    const so = Number(req.body.sortOrder)
+    if (!isNaN(so)) category.sortOrder = so
+  }
 
   await category.save();
   const populated = await Category.findById(category._id).populate("parentCategory", "name slug");

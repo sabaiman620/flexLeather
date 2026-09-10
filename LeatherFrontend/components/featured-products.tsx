@@ -82,29 +82,15 @@ export default function FeaturedProducts({ category, currentProductId, currentPr
           ? others.filter(p => p.category === category)
           : others
 
-        // Order featured products using the preferred category sequence
-        const PREFERRED = ['men', 'women', 'office', 'kids', 'gift-ideas']
-        const grouped: Record<string, UIProduct[]> = {}
-        const rest: UIProduct[] = []
-        filtered.forEach(p => {
-          // @ts-ignore
-          const key = (p.parentCategorySlug || p.categorySlug || '').toLowerCase()
-          if (key) {
-            if (!grouped[key]) grouped[key] = []
-            grouped[key].push(p)
-          } else {
-            rest.push(p)
-          }
-        })
+        // Server now orders products by category sortOrder; preserve server ordering
+        const ordered = filtered
 
-        const ordered: UIProduct[] = []
-        PREFERRED.forEach(slug => {
-          if (grouped[slug] && grouped[slug].length) ordered.push(...grouped[slug])
-        })
-        Object.keys(grouped).forEach(k => {
-          if (!PREFERRED.includes(k)) ordered.push(...grouped[k])
-        })
-        ordered.push(...rest)
+        try {
+          // eslint-disable-next-line no-console
+          console.log('[FeaturedProducts] original categories:', filtered.slice(0,8).map((p: UIProduct) => ({ id: p.id, category: (p as any).category, categorySlug: (p as any).categorySlug, parentCategorySlug: (p as any).parentCategorySlug })))
+          // eslint-disable-next-line no-console
+          console.log('[FeaturedProducts] ordered categories:', (ordered as UIProduct[]).slice(0,8).map((p: UIProduct) => ({ id: p.id, category: (p as any).category, categorySlug: (p as any).categorySlug, parentCategorySlug: (p as any).parentCategorySlug })))
+        } catch {}
 
         setProducts(ordered.slice(0, 8))
       } catch {}

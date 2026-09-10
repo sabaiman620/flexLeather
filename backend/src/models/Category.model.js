@@ -11,7 +11,9 @@ const categorySchema = new mongoose.Schema(
       index: true
     },
     description: { type: String },
-    isActive: { type: Boolean, default: true }
+    isActive: { type: Boolean, default: true },
+    // Lower values appear earlier. Admin can set this to control global category ordering.
+    sortOrder: { type: Number, default: 1000, index: true }
   },
   { timestamps: true }
 );
