@@ -35,12 +35,16 @@ export default function Header() {
   const [clientUser, setClientUser] = useState<any>(null)
   const pathname = usePathname()
   const [productsIndex, setProductsIndex] = useState<any[]>([])
+  // Track client mount to avoid rendering client-only values during SSR
+  const [isClientMounted, setIsClientMounted] = useState(false)
 
   useEffect(() => {
     // Populate client-only auth-derived state on mount/update
     setClientAuthLoaded(true)
     setClientLoggedIn(!isLoading && !!isLoggedIn)
     setClientUser(user || null)
+    // mark client as mounted for client-only UI like cart count
+    setIsClientMounted(true)
   }, [isLoggedIn, isLoading, user])
 
   useEffect(() => {
@@ -108,9 +112,14 @@ export default function Header() {
           <div className="flex items-center gap-2">
             <Link href="/cart" className="relative p-2">
               <ShoppingCart className="w-5 h-5 text-[#E6D8C8]" />
-              {totalItems > 0 && (
-                <span className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 bg-[#E6D8C8] text-black font-bold text-[10px] rounded-full w-4 h-4 flex items-center justify-center">{totalItems}</span>
-              )}
+              {/* Render badge element always to keep server/client markup stable.
+                  Show visible count only after client mounts to avoid hydration mismatch. */}
+              <span
+                aria-hidden={!isClientMounted || totalItems <= 0}
+                className={`absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 bg-[#E6D8C8] text-black font-bold text-[10px] rounded-full w-4 h-4 flex items-center justify-center ${!(isClientMounted && totalItems > 0) ? 'invisible' : ''}`}
+              >
+                {isClientMounted && totalItems > 0 ? totalItems : ''}
+              </span>
             </Link>
 
             {/* On mobile we hide the horizontal login/signup and move them into the menu. Keep cart and hamburger compact. */}
@@ -255,11 +264,13 @@ export default function Header() {
               className="relative p-2 hover:bg-white/10 rounded-full transition"
             >
               <ShoppingCart className="w-5 h-5 text-[#E6D8C8]" />
-              {totalItems > 0 && (
-                <span className="absolute top-0 right-0 bg-[#E6D8C8] text-black font-bold text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
-                  {totalItems}
-                </span>
-              )}
+              {/* Desktop badge — always present but invisible until client mounts */}
+              <span
+                aria-hidden={!isClientMounted || totalItems <= 0}
+                className={`absolute top-0 right-0 bg-[#E6D8C8] text-black font-bold text-[10px] rounded-full w-4 h-4 flex items-center justify-center ${!(isClientMounted && totalItems > 0) ? 'invisible' : ''}`}
+              >
+                {isClientMounted && totalItems > 0 ? totalItems : ''}
+              </span>
             </Link>
 
             {/* Signup as plain text (only if not logged in) */}

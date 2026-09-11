@@ -17,6 +17,7 @@ type CartItem = {
   selectedColor?: string
   availableSizes?: string[]
   availableColors?: string[]
+  _cartId?: string
 }
 
 type CartContextType = {
@@ -28,6 +29,8 @@ type CartContextType = {
   updateQuantity: (id: string, qty: number) => void
   updateItemOption: (id: string, option: 'selectedSize' | 'selectedColor', value: string) => void
   clearCart: () => void
+  // Whether the provider has rehydrated from storage on the client
+  hydrated: boolean
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
@@ -37,9 +40,10 @@ const CART_STORAGE_KEY = 'flexleather_cart'
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const { isLoggedIn } = useAuth()
   const prevLoggedIn = useRef(isLoggedIn)
-
   // Start with empty list on first render (server and client) to avoid hydration mismatch.
   const [items, setItems] = useState<CartItem[]>([])
+  // Track whether we've read persisted state from storage
+  const [hydrated, setHydrated] = useState(false)
 
   // Read cart from localStorage after hydration to keep SSR and client render consistent.
   useEffect(() => {
@@ -49,6 +53,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       setItems(parsed)
     } catch (e) {
       setItems([])
+    } finally {
+      // mark hydrated regardless of success so we start persisting afterwards
+      setHydrated(true)
     }
   }, [])
 
@@ -60,13 +67,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     prevLoggedIn.current = isLoggedIn
   }, [isLoggedIn])
 
+  // Persist cart to localStorage, but only after we've rehydrated. This avoids
+  // overwriting persisted cart with the initial empty state on first mount.
   useEffect(() => {
+    if (!hydrated) return
     try {
       localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items))
     } catch (err) {
       // ignore
     }
-  }, [items])
+  }, [items, hydrated])
 
   // When admin updates products, other tabs will receive a storage event and
   // we should reconcile cart item prices/discounts with latest product data.
@@ -104,6 +114,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     window.addEventListener('storage', onStorage)
     return () => window.removeEventListener('storage', onStorage)
   }, [setItems])
+
 
   const totalItems = items.reduce((s, i) => s + i.quantity, 0)
   const totalPrice = items.reduce((s, i) => s + i.price * i.quantity, 0)
@@ -170,7 +181,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const clearCart = () => setItems([])
 
   return (
-    <CartContext.Provider value={{ items, totalItems, totalPrice, addToCart, removeFromCart, updateQuantity, updateItemOption, clearCart }}>
+    <CartContext.Provider value={{ items, totalItems, totalPrice, addToCart, removeFromCart, updateQuantity, updateItemOption, clearCart, hydrated }}>
       {children}
     </CartContext.Provider>
   )
