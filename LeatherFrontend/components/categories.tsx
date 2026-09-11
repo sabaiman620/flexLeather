@@ -21,9 +21,9 @@ const categories = [
     link: '/shop?category=gift-ideas'
   },
   {
-    name: 'TRAVEL',
+    name: 'KIDS',
     image: '/travel.jpg',
-    link: '/shop?category=travel'
+    link: '/shop?category=kids'
   },
   {
     name: 'OFFICE',

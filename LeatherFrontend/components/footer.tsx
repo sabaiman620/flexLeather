@@ -192,7 +192,7 @@ export default function Footer() {
               <Youtube className="w-5 h-5" />
             </a>
 
-            <a
+            {/* <a
               href="https://www.tiktok.com/@flexleather.official.com"
               target="_blank"
               rel="noopener noreferrer"
@@ -200,7 +200,7 @@ export default function Footer() {
               className="hover:opacity-100 transition"
             >
               <TikTokIcon className="w-5 h-5" />
-            </a>
+            </a> */}
 
             
           </div>

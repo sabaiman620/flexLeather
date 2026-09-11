@@ -102,7 +102,7 @@ export default function LeatherShowcase() {
 
         {/* Right 3D Slider */}
         <div className="w-full lg:w-1/2 flex justify-center">
-          <div className="relative w-full max-w-[560px] h-[360px] perspective overflow-hidden">
+          <div className="relative w-full max-w-[560px] h-[220px] sm:h-[280px] md:h-[320px] lg:h-[360px] perspective overflow-hidden">
             <div className="slider3d animate-rotate3D">
               {images.map((img, i) => (
                 <div key={i} className="slide">

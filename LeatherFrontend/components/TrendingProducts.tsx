@@ -43,10 +43,10 @@ export default function TrendingProducts() {
   if (!products.length) return null
 
   return (
-    <section className="w-full bg-white py-22">
+    <section className="w-full bg-gray-50 py-20">
       <div className="mx-auto max-w-7xl px-4">
-        <div className="mb-12">
-          <h3 className="font-serif text-2xl md:text-3xl">
+        <div className="mb-16">
+          <h3 className="font-serif text-2xl md:text-4xl font-semibold text-center">
             Trending Products
           </h3>
         </div>
@@ -71,14 +71,14 @@ export default function TrendingProducts() {
                   transition hover:shadow-lg
                 "
               >
-                <div className="relative mb-3 h-56 w-full rounded bg-gray-50">
-                  <Image
-                    src={p.imageUrls?.[0] || '/placeholder.jpg'}
-                    alt={p.name}
-                    fill
-                    className="object-contain"
-                  />
-                </div>
+                <div className="relative mb-3 h-56 w-full rounded bg-white overflow-hidden">
+                    <Image
+                      src={p.imageUrls?.[0] || '/placeholder.jpg'}
+                      alt={p.name}
+                      fill
+                      className="object-cover object-center"
+                    />
+                  </div>
 
                 <div className="mb-2">
                   <span className="inline-block rounded bg-amber-600 px-2 py-0.5 text-[11px] text-white">
@@ -97,33 +97,33 @@ export default function TrendingProducts() {
             ))}
           </div>
 
-          {/* Left Arrow */}
+          {/* Left Arrow (visible on all sizes for easy mobile navigation) */}
           <button
             type="button"
             onClick={() => scroll('left')}
             aria-label="Scroll left"
             className="
-              absolute -left-14 top-1/2 z-20 hidden
+              absolute left-3 top-1/2 z-20 flex
               h-10 w-10 -translate-y-1/2
               items-center justify-center
               rounded-full border bg-white shadow-sm
-              lg:flex
+              text-lg
             "
           >
             ‹
           </button>
 
-          {/* Right Arrow */}
+          {/* Right Arrow (visible on all sizes) */}
           <button
             type="button"
             onClick={() => scroll('right')}
             aria-label="Scroll right"
             className="
-              absolute -right-14 top-1/2 z-20 hidden
+              absolute right-3 top-1/2 z-20 flex
               h-10 w-10 -translate-y-1/2
               items-center justify-center
               rounded-full border bg-white shadow-sm
-              lg:flex
+              text-lg
             "
           >
             ›

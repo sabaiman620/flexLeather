@@ -6,62 +6,56 @@ import { ShieldCheck, Wrench, Lock, Star } from 'lucide-react'
 export default function AboutAndValues() {
   return (
     <section className="space-y-14">
-
-     {/* What Sets Us Apart */}
+{/* What Sets Us Apart */}
 <div className="w-full bg-primary py-12 md:py-16">
-  <div className="max-w-5xl mx-auto text-center px-6">
+  <div className="max-w-7xl mx-auto text-center px-4">
 
-    <h3 className="text-xl md:text-2xl font-serif font-light tracking-wide text-[#E6D8C8] mb-10">
+    <h3 className="text-xl md:text-3xl font-serif font-medium tracking-wide text-[#E6D8C8]  font-semibold mb-8">
       What Sets Us Apart
     </h3>
 
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
 
       {[
         {
-          icon: <ShieldCheck size={38} strokeWidth={1.5} />,
+          icon: <ShieldCheck size={20} strokeWidth={1.5} />,
           title: 'Premium Quality',
+          description: 'We use genuine leather and carefully selected materials to create products built for lasting quality.',
         },
         {
-          icon: <Wrench size={38} strokeWidth={1.5} />,
+          icon: <Wrench size={20} strokeWidth={1.5} />,
           title: 'Expert Craftsmanship',
+          description: 'Every piece is crafted with precision, attention to detail, and respect for traditional leatherwork.',
         },
         {
-          icon: <Lock size={38} strokeWidth={1.5} />,
+          icon: <Lock size={20} strokeWidth={1.5} />,
           title: 'Secure Shopping',
+          description: 'Shop with confidence through secure payments, reliable delivery, and a smooth buying experience.',
         },
         {
-          icon: <Star size={38} strokeWidth={1.5} />,
+          icon: <Star size={20} strokeWidth={1.5} />,
           title: 'Customer First',
+          description: 'Your satisfaction comes first. We’re here to make every purchase simple, personal, and worthwhile.',
         },
       ].map((c, i) => (
         <div
           key={i}
-          className="
-            min-h-[130px]
-            bg-[#5a4640]
-            shadow-md
-            flex
-            flex-col
-            items-center
-            justify-center
-            gap-4
-            px-4
-            py-6
-            transition-all
-            duration-300
-            hover:-translate-y-1
-            hover:bg-[#64504a]
-            border
-            border-[#75615a]
-          "
+          className="min-h-[130px] bg-primary/90 rounded-lg shadow-sm px-6 py-6 transition-transform duration-300 hover:-translate-y-2 hover:shadow-lg"
         >
-          <div className="text-[#E6D8C8]">
-            {c.icon}
-          </div>
+          <div className="w-full h-full rounded-[18px] flex flex-col items-center justify-center gap-4 p-4 border border-white/30">
 
-          <div className="font-serif text-sm md:text-base text-[#E6D8C8]">
-            {c.title}
+            <div className="bg-amber-600 text-white rounded-full p-3 shadow-md">
+              {c.icon}
+            </div>
+
+            <div className="font-serif text-sm md:text-base text-[#E6D8C8] font-semibold">
+              {c.title}
+            </div>
+
+            <p className="text-xs text-[#D8CDBF] opacity-85 max-w-[14rem]">
+              {c.description}
+            </p>
+
           </div>
         </div>
       ))}
@@ -70,7 +64,7 @@ export default function AboutAndValues() {
   </div>
 </div>
       {/* About Us */}
-      <div className="py-20 md:py-24">
+      <div className="py-20 md:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 xl:gap-20 items-center">
@@ -130,33 +124,29 @@ export default function AboutAndValues() {
             <div className="space-y-8">
 
               <div>
-                <h3 className="text-4xl md:text-5xl font-serif">
+                <h3 className="text-4xl md:text-4xl font-serif font-semibold  ">
                   About Us
                 </h3>
-
+{/* 
                 <div className="flex items-center gap-1 mt-4">
                   <div className="w-12 h-[1px] bg-gray-400" />
                   <span className="text-gray-500 text-xs">
                     ∞
                   </span>
                   <div className="w-10 h-[1px] bg-gray-400" />
-                </div>
+                </div> */}
               </div>
 
               <p className="text-base md:text-[17px] leading-8 text-muted-foreground max-w-2xl">
-                At HF Hitmoxes, we believe leather is more than just a
-                material—it's a legacy. Our journey began with a passion for
-                craftsmanship and a commitment to creating leather goods that
-                stand the test of time. Every product we make is a blend of
-                tradition, quality, and modern functionality.
+              At Flex Leather, we create leather goods that bring together quality materials, practical design, and timeless style. Our collection is thoughtfully developed for everyday use — from work and travel to gifting and personal essentials. We pay attention to the details that make each piece feel both functional and refined.
               </p>
 
-              {/* Stats */}
+              Stats
               <div className="grid grid-cols-3 gap-4 pt-4">
 
                 <div className="text-center">
                   <div className="text-3xl md:text-4xl font-semibold">
-                    5+
+                    3+
                   </div>
 
                   <div className="text-sm md:text-base text-muted-foreground mt-1">
@@ -166,7 +156,7 @@ export default function AboutAndValues() {
 
                 <div className="text-center">
                   <div className="text-3xl md:text-4xl font-semibold">
-                    10K+
+                    2k+
                   </div>
 
                   <div className="text-sm md:text-base text-muted-foreground mt-1">

@@ -340,10 +340,9 @@ export default function Header() {
       {/* Login Modal removed — header now links to /login page */}
 
       {/* Spacer so content starts below fixed header (accounts for AnnouncementBar + Header height) */}
-      <div
-        className="md:hidden w-full"
-        style={{ height: 'calc(64px + var(--announcement-height, 0px))' }}
-      />
+     <div
+  className="md:hidden w-full h-[calc(56px+var(--announcement-height,0px))] sm:h-[calc(64px+var(--announcement-height,0px))]"
+/>
       <div
         className="hidden md:block w-full"
         style={{ height: 'calc(88px + var(--announcement-height, 0px))' }}

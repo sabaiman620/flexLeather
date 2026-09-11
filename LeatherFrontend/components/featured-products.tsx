@@ -118,13 +118,13 @@ export default function FeaturedProducts({ category, currentProductId, currentPr
   }
 
   return (
-    <section className="bg-background py-16 md:py-24">
+    <section className="bg-background py-16 md:py-22">
       <div className="w-full max-w-7xl mx-auto px-4 overflow-hidden block">
-        <h2 className="text-center text-3xl md:text-4xl font-serif font-light tracking-wide mb-12">
+        <h2 className="text-center text-4xl md:text-4xl font-serif font-light tracking-wide mb-11 font-semibold">
           {title || (category ? 'Related Products' : 'Featured Collection')}
         </h2>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full py-10">
           {products.map((product, idx) => {
             const hasDiscount = product.discount && product.discount > 0
             const discountedPrice = hasDiscount

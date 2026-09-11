@@ -241,7 +241,7 @@ export default function CategoriesNavBar() {
         </div>
 
         {/* Mobile Horizontal Scrollable Category Bar with Tap/Expand */}
-        <div className="md:hidden flex items-center gap-2.5 overflow-x-auto no-scrollbar py-2">
+        <div className="md:hidden flex items-center gap-2.5 overflow-x-auto no-scrollbar py-1 pl-2 pr-4">
           {categories.map(cat => {
             const hasSubs = cat.subcategories.length > 0
             const isOpen = openMobileDropdown === cat._id
@@ -296,6 +296,8 @@ export default function CategoriesNavBar() {
               </div>
             )
           })}
+          {/* trailing spacer so last pill isn't cut off on small screens */}
+          <div className="flex-shrink-0 w-3" />
         </div>
       </div>
     </nav>
