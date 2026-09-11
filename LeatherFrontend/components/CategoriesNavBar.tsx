@@ -80,7 +80,9 @@ export default function CategoriesNavBar() {
   const [categories, setCategories] = useState<FormattedCategory[]>(DEFAULT_CATEGORIES)
   const [openMobileDropdown, setOpenMobileDropdown] = useState<string | null>(null)
   const [activeHover, setActiveHover] = useState<string | null>(null)
+  const [mobileMenuPos, setMobileMenuPos] = useState<{ left: number; top: number } | null>(null)
   const navRef = useRef<HTMLDivElement>(null)
+  const pillRefs = useRef<Record<string, HTMLButtonElement | null>>({})
 
   useEffect(() => {
     let isMounted = true
@@ -163,7 +165,32 @@ export default function CategoriesNavBar() {
   }, [])
 
   const toggleMobile = (id: string) => {
-    setOpenMobileDropdown(prev => (prev === id ? null : id))
+    setOpenMobileDropdown(prev => {
+      const next = prev === id ? null : id
+
+      // compute menu position when opening
+      if (next) {
+        try {
+          const pill = pillRefs.current[id]
+          const nav = navRef.current
+          if (pill && nav) {
+            const pillRect = pill.getBoundingClientRect()
+            const navRect = nav.getBoundingClientRect()
+            const left = Math.max(8, Math.round(pillRect.left - navRect.left))
+            const top = Math.round(pillRect.bottom - navRect.top) + 6
+            setMobileMenuPos({ left, top })
+          } else {
+            setMobileMenuPos(null)
+          }
+        } catch (e) {
+          setMobileMenuPos(null)
+        }
+      } else {
+        setMobileMenuPos(null)
+      }
+
+      return next
+    })
   }
 
   return (
@@ -250,7 +277,15 @@ export default function CategoriesNavBar() {
               <div key={cat._id} className="relative flex-shrink-0">
                 {hasSubs ? (
                   <button
-                    onClick={() => toggleMobile(cat._id)}
+                    ref={el => { pillRefs.current[cat._id] = el }}
+                    onPointerUp={() => toggleMobile(cat._id)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        toggleMobile(cat._id)
+                      }
+                    }}
+                    aria-expanded={!!isOpen}
                     className="flex items-center gap-1 text-[10.5px] font-medium tracking-wide uppercase bg-[#3E2723] border border-[#E6D8C8]/20 px-3 py-1 rounded-full text-[#E6D8C8] active:scale-95 transition-all"
                   >
                     <span>{cat.name}</span>
@@ -267,38 +302,48 @@ export default function CategoriesNavBar() {
                     {cat.name}
                   </Link>
                 )}
-
-                {/* Mobile Dropdown */}
-                {hasSubs && isOpen && (
-                  <div
-                    className="absolute left-0 top-full mt-2 min-w-[170px] bg-[#3E2723] border border-[#E6D8C8]/20 rounded-md shadow-2xl py-2 px-1 z-50 animate-in fade-in slide-in-from-top-1"
-                  >
-                    <Link
-                      href={`/shop?category=${encodeURIComponent(cat.slug)}`}
-                      className="block px-3 py-1.5 text-[10.5px] font-medium tracking-wide text-[#E6D8C8] hover:bg-[#E6D8C8]/15 rounded"
-                      onClick={() => setOpenMobileDropdown(null)}
-                    >
-                      All {cat.name}
-                    </Link>
-                    <div className="h-px bg-[#E6D8C8]/15 my-1 mx-2" />
-                    {cat.subcategories.map(sub => (
-                      <Link
-                        key={sub._id}
-                        href={`/shop?category=${encodeURIComponent(cat.slug)}&subcategory=${encodeURIComponent(sub.slug)}`}
-                        className="block px-3 py-1.5 text-[10.5px] font-normal tracking-wide text-[#E6D8C8]/90 hover:bg-[#E6D8C8]/15 rounded"
-                        onClick={() => setOpenMobileDropdown(null)}
-                      >
-                        {sub.name}
-                      </Link>
-                    ))}
-                  </div>
-                )}
+                {/* Mobile dropdown intentionally rendered below the scroller for visibility */}
               </div>
             )
           })}
           {/* trailing spacer so last pill isn't cut off on small screens */}
           <div className="flex-shrink-0 w-3" />
         </div>
+
+        {/* Render a single mobile dropdown positioned beneath the tapped pill (keeps dropdown outside the horizontal scroller) */}
+        {openMobileDropdown && mobileMenuPos && (
+          (() => {
+            const current = categories.find(c => c._id === openMobileDropdown)
+            if (!current) return null
+            return (
+              <div
+                style={{ left: mobileMenuPos.left, top: mobileMenuPos.top }}
+                className="absolute bg-transparent z-50"
+              >
+                <div className="min-w-[170px] bg-[#3E2723] border border-[#E6D8C8]/20 rounded-md shadow-2xl py-2 px-1">
+                  <Link
+                    href={`/shop?category=${encodeURIComponent(current.slug)}`}
+                    className="block px-3 py-1.5 text-[10.5px] font-medium tracking-wide text-[#E6D8C8] hover:bg-[#E6D8C8]/15 rounded"
+                    onClick={() => setOpenMobileDropdown(null)}
+                  >
+                    All {current.name}
+                  </Link>
+                  <div className="h-px bg-[#E6D8C8]/15 my-1 mx-2" />
+                  {current.subcategories.map(sub => (
+                    <Link
+                      key={sub._id}
+                      href={`/shop?category=${encodeURIComponent(current.slug)}&subcategory=${encodeURIComponent(sub.slug)}`}
+                      className="block px-3 py-1.5 text-[10.5px] font-normal tracking-wide text-[#E6D8C8]/90 hover:bg-[#E6D8C8]/15 rounded"
+                      onClick={() => setOpenMobileDropdown(null)}
+                    >
+                      {sub.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )
+          })()
+        )}
       </div>
     </nav>
   )

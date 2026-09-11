@@ -236,11 +236,11 @@ export default function Hero() {
               {currentImage?.heading}
             </h2>
 
-            <Link href="/shop">
+            {/* <Link href="/shop">
               <Button className="btn-smooth bg-white text-neutral-900 hover:bg-gray-100 px-6 py-2 text-sm tracking-wide font-semibold border border-white">
                 {currentImage?.cta}
               </Button>
-            </Link>
+            </Link> */}
           </div>
         </div>
 
