@@ -16,7 +16,19 @@ export const createCategorySchema = z.object({
   name: trimmedString(),
   parentCategory: z.string().optional().nullable(),
   description: z.string().optional().nullable(),
-  isActive: z.boolean().optional()
+  // Optional collection image URL (admin may pass as string or via multipart file)
+  collectionImageUrl: z.string().optional().nullable(),
+  // Accept boolean or string ('true'/'false') from multipart FormData
+  isActive: z.preprocess((val) => {
+    if (typeof val === 'string') return val === 'true'
+    if (typeof val === 'boolean') return val
+    return val
+  }, z.boolean().optional()),
+  // Accept numeric values or numeric strings for sortOrder
+  sortOrder: z.preprocess((val) => {
+    if (typeof val === 'string' && val.trim() !== '') return Number(val)
+    return val
+  }, z.number().optional())
 });
 
 // Schema for updating a category
@@ -28,5 +40,14 @@ export const updateCategorySchema = z.object({
   name: trimmedString().optional(),
   parentCategory: z.string().optional().nullable(),
   description: z.string().optional().nullable(),
-  isActive: z.boolean().optional()
+  collectionImageUrl: z.string().optional().nullable(),
+  isActive: z.preprocess((val) => {
+    if (typeof val === 'string') return val === 'true'
+    if (typeof val === 'boolean') return val
+    return val
+  }, z.boolean().optional()),
+  sortOrder: z.preprocess((val) => {
+    if (typeof val === 'string' && val.trim() !== '') return Number(val)
+    return val
+  }, z.number().optional())
 });

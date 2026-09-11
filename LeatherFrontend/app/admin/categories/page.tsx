@@ -18,7 +18,9 @@ export default function AdminCategoriesPage() {
     parentCategory: '',
     description: '',
     isActive: true,
-    sortOrder: 1000
+    sortOrder: 1000,
+    collectionImageFile: null as File | null,
+    collectionImagePreview: ''
   })
 
   const loadCategories = async () => {
@@ -68,7 +70,9 @@ export default function AdminCategoriesPage() {
       parentCategory: pId || '',
       description: cat.description || '',
       isActive: cat.isActive !== false,
-      sortOrder: typeof cat.sortOrder === 'number' ? cat.sortOrder : (cat.sortOrder ? Number(cat.sortOrder) : 1000)
+      sortOrder: typeof cat.sortOrder === 'number' ? cat.sortOrder : (cat.sortOrder ? Number(cat.sortOrder) : 1000),
+      collectionImageFile: null,
+      collectionImagePreview: (cat as any).collectionImageUrl || ''
     })
     setError(null)
     setSuccess(null)
@@ -88,22 +92,43 @@ export default function AdminCategoriesPage() {
         ? `${API_BASE_URL}/api/v1/categories/${editingCategory._id}`
         : `${API_BASE_URL}/api/v1/categories/create`
       const method = editingCategory ? 'PUT' : 'POST'
+      let res: Response
 
-      const res = await fetch(url, {
-        method,
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
-        },
-        body: JSON.stringify({
+      // If image file present, submit multipart FormData so backend multer handles it
+      if (formData.collectionImageFile) {
+        const fd = new FormData()
+        fd.append('name', formData.name.trim())
+        fd.append('parentCategory', formData.parentCategory || '')
+        fd.append('description', formData.description || '')
+        fd.append('isActive', formData.isActive ? 'true' : 'false')
+        fd.append('sortOrder', String(typeof formData.sortOrder === 'number' ? formData.sortOrder : Number(formData.sortOrder || 1000)))
+        fd.append('collectionImage', formData.collectionImageFile)
+
+        res = await fetch(url, {
+          method,
+          credentials: 'include',
+          headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+          },
+          body: fd
+        })
+      } else {
+        res = await fetch(url, {
+          method,
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+          },
+          body: JSON.stringify({
             name: formData.name.trim(),
             parentCategory: formData.parentCategory || null,
             description: formData.description,
             isActive: formData.isActive,
             sortOrder: typeof formData.sortOrder === 'number' ? formData.sortOrder : Number(formData.sortOrder || 1000)
           })
-      })
+        })
+      }
 
       const json = await res.json()
       if (!res.ok) {
@@ -440,6 +465,32 @@ export default function AdminCategoriesPage() {
                   value={formData.description}
                   onChange={e => setFormData({ ...formData, description: e.target.value })}
                 />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold uppercase text-gray-600 mb-1">Collection Image (circle)</label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null
+                      if (file) {
+                        const url = URL.createObjectURL(file)
+                        setFormData({ ...formData, collectionImageFile: file, collectionImagePreview: url })
+                      } else {
+                        setFormData({ ...formData, collectionImageFile: null })
+                      }
+                    }}
+                  />
+
+                  {formData.collectionImagePreview && (
+                    <div className="w-16 h-16 rounded-full overflow-hidden border">
+                      <img src={formData.collectionImagePreview} alt="preview" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">Image used only on /collections circles. Upload square image for best results.</p>
               </div>
 
               <div className="flex items-center gap-2">

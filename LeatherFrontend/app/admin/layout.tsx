@@ -22,19 +22,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
   }, [isLoading, isLoggedIn, user, router])
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
-        <div className="text-center">
-          <p className="text-lg font-medium animate-pulse">Verifying admin access...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (!isLoggedIn || user?.userRole !== 'admin') {
-    return null // Redirecting
-  }
+  // Always render a consistent root structure to avoid server/client hydration mismatches.
+  // Show a centered verifying message while auth is resolving, but keep same wrapper markup.
+  const showSpinner = isLoading
 
   return (
     <>
@@ -54,14 +44,25 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
         )}
 
-        <div className="max-w-7xl mx-auto px-4 md:px-6 pt-16 pb-6 flex gap-6">
-          <div className="hidden md:block">
-            <AdminSidebar />
+        {showSpinner ? (
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="text-center">
+              <p className="text-lg font-medium animate-pulse">Verifying admin access...</p>
+            </div>
           </div>
-          <div className="flex-1">
-            {children}
+        ) : (!isLoggedIn || user?.userRole !== 'admin') ? (
+          // If not logged in or not admin we'll let the useEffect handle redirection. Render nothing here.
+          <div />
+        ) : (
+          <div className="max-w-7xl mx-auto px-4 md:px-6 pt-16 pb-6 flex gap-6">
+            <div className="hidden md:block">
+              <AdminSidebar />
+            </div>
+            <div className="flex-1">
+              {children}
+            </div>
           </div>
-        </div>
+        )}
       </main>
       <Footer />
     </>

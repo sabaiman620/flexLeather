@@ -3,6 +3,7 @@ import Category from "../../models/Category.model.js";
 import Product from "../../models/Product.model.js";
 import { ApiError } from "../../core/utils/api-error.js";
 import { ApiResponse } from "../../core/utils/api-response.js";
+import S3UploadHelper from "../../shared/helpers/s3Upload.js";
 
 // Get all categories (with populated parentCategory)
 const getAllCategories = asyncHandler(async (req, res) => {
@@ -12,7 +13,23 @@ const getAllCategories = asyncHandler(async (req, res) => {
   const categories = await Category.find(query)
     .populate("parentCategory", "name slug sortOrder")
     .sort({ sortOrder: 1, name: 1 });
-  return res.status(200).json(new ApiResponse(200, categories, "Categories fetched"));
+
+  // Add signed URL for collection image if available (non-blocking)
+  const categoriesWithUrls = await Promise.all(
+    categories.map(async (c) => {
+      let collectionImageUrl = ""
+      try {
+        if (c.collectionImageKey) {
+          collectionImageUrl = await S3UploadHelper.getSignedUrl(c.collectionImageKey)
+        }
+      } catch (e) {
+        collectionImageUrl = ""
+      }
+      return { ...c._doc, collectionImageUrl }
+    })
+  )
+
+  return res.status(200).json(new ApiResponse(200, categoriesWithUrls, "Categories fetched"));
 });
 
 // Create category (admin)
@@ -53,14 +70,26 @@ const createCategory = asyncHandler(async (req, res) => {
     }
   }
 
-  const category = await Category.create({
+  const categoryData = {
     name: formattedName,
     slug,
     parentCategory: parentId,
     description: description || `${formattedName} category`,
     isActive: isActive !== undefined ? isActive : true,
     sortOrder: typeof sortOrder === 'number' ? sortOrder : undefined
-  });
+  }
+
+  // If file upload provided (multipart), upload and attach collectionImageKey
+  if (req.file) {
+    try {
+      const uploadRes = await S3UploadHelper.uploadFile(req.file, 'category-collections')
+      if (uploadRes && uploadRes.key) categoryData.collectionImageKey = uploadRes.key
+    } catch (e) {
+      console.warn('Category image upload failed', e?.message || e)
+    }
+  }
+
+  const category = await Category.create(categoryData);
 
   const populated = await Category.findById(category._id).populate("parentCategory", "name slug");
   return res.status(201).json(new ApiResponse(201, populated, "Category created successfully"));
@@ -103,6 +132,22 @@ const updateCategory = asyncHandler(async (req, res) => {
   if (req.body.sortOrder !== undefined) {
     const so = Number(req.body.sortOrder)
     if (!isNaN(so)) category.sortOrder = so
+  }
+
+  // Handle collection image replacement (multipart upload)
+  if (req.file) {
+    try {
+      const uploadRes = await S3UploadHelper.uploadFile(req.file, 'category-collections')
+      // delete old image if present
+      try {
+        if (category.collectionImageKey) await S3UploadHelper.deleteFile(category.collectionImageKey)
+      } catch (e) {
+        console.warn('Failed to delete old category image', e?.message || e)
+      }
+      category.collectionImageKey = uploadRes.key
+    } catch (e) {
+      console.warn('Category image replacement failed', e?.message || e)
+    }
   }
 
   await category.save();

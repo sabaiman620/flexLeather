@@ -97,7 +97,7 @@ export default function Header() {
         <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2 sm:py-3 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 flex-shrink-0">
             <div className="relative w-10 h-10">
-              <Image src="/logos.png" alt="Flex Leather Logo" width={40} height={40} className="object-contain" priority />
+              <Image src="/logos.png" alt="Flex Leather Logo" width={40} height={40} className="object-contain" style={{ width: 'auto', height: 'auto' }} priority />
             </div>
             <div className="flex flex-col text-[#E6D8C8] whitespace-nowrap">
               <span className="text-[10px] tracking-[0.3em] uppercase opacity-70">Flex</span>

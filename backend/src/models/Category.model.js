@@ -14,6 +14,9 @@ const categorySchema = new mongoose.Schema(
     isActive: { type: Boolean, default: true },
     // Lower values appear earlier. Admin can set this to control global category ordering.
     sortOrder: { type: Number, default: 1000, index: true }
+    ,
+    // Optional collection image key stored in Cloudinary/S3 helper
+    collectionImageKey: { type: String }
   },
   { timestamps: true }
 );
