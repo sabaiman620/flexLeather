@@ -18,6 +18,7 @@ type AuthContextType = {
   user: User | null
   isLoggedIn: boolean
   isLoading: boolean
+  hydrated: boolean
   login: (token: string, userData: User) => void
   logout: () => void
 }
@@ -26,6 +27,7 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   isLoggedIn: false,
   isLoading: true,
+  hydrated: false,
   login: () => {},
   logout: () => {},
 })
@@ -33,6 +35,7 @@ const AuthContext = createContext<AuthContextType>({
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [hydrated, setHydrated] = useState(false)
 
   const logout = async () => {
     try {
@@ -85,6 +88,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await fetchMe()
     } finally {
+      // Mark that we've attempted initial auth check on the client
+      setHydrated(true)
       clearTimeout(timeout)
     }
   }
@@ -108,10 +113,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {}
     setUser(userData)
     setIsLoading(false)
+    setHydrated(true)
   }
 
   return (
-    <AuthContext.Provider value={{ user, isLoggedIn: !!user, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ user, isLoggedIn: !!user, isLoading, hydrated, login, logout }}>
       {children}
     </AuthContext.Provider>
   )

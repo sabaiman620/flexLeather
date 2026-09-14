@@ -10,7 +10,7 @@ import AdminNavbar from '@/components/admin/AdminNavbar'
 import { useState } from 'react'
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { user, isLoggedIn, isLoading } = useAuth()
+  const { user, isLoggedIn, isLoading, hydrated } = useAuth()
   const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
@@ -23,8 +23,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }, [isLoading, isLoggedIn, user, router])
 
   // Always render a consistent root structure to avoid server/client hydration mismatches.
-  // Show a centered verifying message while auth is resolving, but keep same wrapper markup.
-  const showSpinner = isLoading
+  // Wait for auth provider to perform its initial client-side hydration before
+  // rendering admin UI. This keeps server and initial client markup identical.
+  const showSpinner = !hydrated || isLoading
 
   return (
     <>

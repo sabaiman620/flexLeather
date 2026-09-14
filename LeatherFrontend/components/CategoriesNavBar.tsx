@@ -22,11 +22,11 @@ const DEFAULT_CATEGORIES: FormattedCategory[] = [
     name: 'WOMEN',
     slug: 'women',
     subcategories: [
-      { _id: 'default-w-1', name: 'Handbags', slug: 'handbags' },
-      { _id: 'default-w-2', name: 'Wallets', slug: 'wallets' },
-      { _id: 'default-w-3', name: 'Accessories', slug: 'accessories' },
-      { _id: 'default-w-4', name: 'Tote Bags', slug: 'tote-bags' },
-      { _id: 'default-w-5', name: 'Jackets', slug: 'jackets' },
+      // { _id: 'default-w-1', name: 'Handbags', slug: 'handbags' },
+      // { _id: 'default-w-2', name: 'Wallets', slug: 'wallets' },
+      // { _id: 'default-w-3', name: 'Accessories', slug: 'accessories' },
+      // { _id: 'default-w-4', name: 'Tote Bags', slug: 'tote-bags' },
+      // { _id: 'default-w-5', name: 'Jackets', slug: 'jackets' },
     ]
   },
   {
@@ -34,11 +34,11 @@ const DEFAULT_CATEGORIES: FormattedCategory[] = [
     name: 'MEN',
     slug: 'men',
     subcategories: [
-      { _id: 'default-m-1', name: 'Wallets', slug: 'wallets' },
-      { _id: 'default-m-2', name: 'Belts', slug: 'belts' },
-      { _id: 'default-m-3', name: 'Jackets', slug: 'jackets' },
-      { _id: 'default-m-4', name: 'Messenger Bags', slug: 'messenger-bags' },
-      { _id: 'default-m-5', name: 'Briefcases', slug: 'briefcases' },
+      // { _id: 'default-m-1', name: 'Wallets', slug: 'wallets' },
+      // { _id: 'default-m-2', name: 'Belts', slug: 'belts' },
+      // { _id: 'default-m-3', name: 'Jackets', slug: 'jackets' },
+      // { _id: 'default-m-4', name: 'Messenger Bags', slug: 'messenger-bags' },
+      // { _id: 'default-m-5', name: 'Briefcases', slug: 'briefcases' },
     ]
   },
   {
@@ -46,10 +46,10 @@ const DEFAULT_CATEGORIES: FormattedCategory[] = [
     name: 'GIFT IDEAS',
     slug: 'gift-ideas',
     subcategories: [
-      { _id: 'default-g-1', name: 'For Him', slug: 'for-him' },
-      { _id: 'default-g-2', name: 'For Her', slug: 'for-her' },
-      { _id: 'default-g-3', name: 'Personalized', slug: 'personalized' },
-      { _id: 'default-g-4', name: 'Keychains', slug: 'keychains' },
+      // { _id: 'default-g-1', name: 'For Him', slug: 'for-him' },
+      // { _id: 'default-g-2', name: 'For Her', slug: 'for-her' },
+      // { _id: 'default-g-3', name: 'Personalized', slug: 'personalized' },
+      // { _id: 'default-g-4', name: 'Keychains', slug: 'keychains' },
     ]
   },
   {
@@ -57,10 +57,10 @@ const DEFAULT_CATEGORIES: FormattedCategory[] = [
     name: 'TRAVEL',
     slug: 'travel',
     subcategories: [
-      { _id: 'default-t-1', name: 'Duffel Bags', slug: 'duffel-bags' },
-      { _id: 'default-t-2', name: 'Passport Covers', slug: 'passport-covers' },
-      { _id: 'default-t-3', name: 'Luggage Tags', slug: 'luggage-tags' },
-      { _id: 'default-t-4', name: 'Toiletry Bags', slug: 'toiletry-bags' },
+      // { _id: 'default-t-1', name: 'Duffel Bags', slug: 'duffel-bags' },
+      // { _id: 'default-t-2', name: 'Passport Covers', slug: 'passport-covers' },
+      // { _id: 'default-t-3', name: 'Luggage Tags', slug: 'luggage-tags' },
+      // { _id: 'default-t-4', name: 'Toiletry Bags', slug: 'toiletry-bags' },
     ]
   },
   {
@@ -68,10 +68,10 @@ const DEFAULT_CATEGORIES: FormattedCategory[] = [
     name: 'OFFICE',
     slug: 'office',
     subcategories: [
-      { _id: 'default-o-1', name: 'Laptop Bags', slug: 'laptop-bags' },
-      { _id: 'default-o-2', name: 'Organizers', slug: 'organizers' },
-      { _id: 'default-o-3', name: 'Desk Mats', slug: 'desk-mats' },
-      { _id: 'default-o-4', name: 'Card Holders', slug: 'card-holders' },
+      // { _id: 'default-o-1', name: 'Laptop Bags', slug: 'laptop-bags' },
+      // { _id: 'default-o-2', name: 'Organizers', slug: 'organizers' },
+      // { _id: 'default-o-3', name: 'Desk Mats', slug: 'desk-mats' },
+      // { _id: 'default-o-4', name: 'Card Holders', slug: 'card-holders' },
     ]
   }
 ]
